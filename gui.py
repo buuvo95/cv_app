@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from model import *
+# from model import *
 
 
 ##test
@@ -135,12 +135,19 @@ class Window(QWidget):
         RRotation = QHBoxLayout()
         RRotationLabel = QLabel("Rotation Range:")
         RRotationLabel.setMinimumWidth(140)
+        
+            # add slider
         self.RRotationSlider = QSlider(Qt.Horizontal)
         self.RRotationSlider.setMinimum(0)
         self.RRotationSlider.setMaximum(180)
         self.RRotationSlider.setValue(0)
+        self.RRotationSlider.valueChanged.connect(self.valueChange)
+            # Add label to displate value
+        self.RRotationDisplay  = QLabel("0")
+
         RRotation.addWidget(RRotationLabel)
         RRotation.addWidget(self.RRotationSlider)
+        RRotation.addWidget(self.RRotationDisplay)
         RRotationWG = QWidget()
         RRotationWG.setLayout(RRotation)
 
@@ -165,8 +172,16 @@ class Window(QWidget):
         self.RZoomSlider.setMinimum(0)
         self.RZoomSlider.setMaximum(100)
         self.RZoomSlider.setValue(0) # -> Remember to devide by 100 for this variable
+        self.RZoomSlider.setTickPosition(QSlider.TicksBelow)
+        self.RZoomSlider.setTickInterval(10)
+        self.RZoomSlider.valueChanged.connect(self.valueChange)
+
+        self.RZoomDisplay  = QLabel("0.0")
+
+
         RZoom.addWidget(RZoomLabel)
         RZoom.addWidget(self.RZoomSlider)
+        RZoom.addWidget(self.RZoomDisplay)
         RZoomWG = QWidget()
         RZoomWG.setLayout(RZoom)
 
@@ -178,8 +193,15 @@ class Window(QWidget):
         self.RShearSlider.setMinimum(0)
         self.RShearSlider.setMaximum(100)
         self.RShearSlider.setValue(0) # -> Remember to devide by 100 for this variable
+        self.RShearSlider.setTickPosition(QSlider.TicksBelow)
+        self.RShearSlider.setTickInterval(10)
+        self.RShearSlider.valueChanged.connect(self.valueChange)
+
+        self.RShearDisplay  = QLabel("0.0")
+        
         RShear.addWidget(RShearLabel)
         RShear.addWidget(self.RShearSlider)
+        RShear.addWidget(self.RShearDisplay)
         RShearWG = QWidget()
         RShearWG.setLayout(RShear)
 
@@ -282,6 +304,10 @@ class Window(QWidget):
         mainLayout.addWidget(hboxLayoutRightWG)
         self.setLayout(mainLayout)
 
+    def valueChange(self):
+        self.RRotationDisplay.setText(str(self.RRotationSlider.value()))
+        self.RZoomDisplay.setText(str(round(self.RZoomSlider.value()/100,1)))
+        self.RShearDisplay.setText(str(round(self.RShearSlider.value()/100,1)))
   
     # When train button clicked
     def _trainClicked(self):
@@ -317,11 +343,11 @@ class Window(QWidget):
         # ComboBox Reset event
         self.Functions.setText("")
         self.Loss.setText("")
-        # Augmentation Reset event
-        self.HVShiftSlider.setValue(0)
-        self.HVFlipSlider.setValue(0)
+        # Augmentation Reset even
+        self.WidthShift.setText("")
+        self.HeightShift.setText("")
         self.RRotationSlider.setValue(0)
-        self.RBrightnessSlider.setValue(0)
+        self.RShearSlider.setValue(0)
         self.RZoomSlider.setValue(0)
 
 
