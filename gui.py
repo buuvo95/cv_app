@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from model import *
 
 
 ##test
@@ -16,7 +17,6 @@ class Window(QWidget):
         self.setWindowTitle("Computer Vision GUI")
 
         # Set title and defaultPath
-        self.title = "Open Path"
         self.defaultPath = "/home/ubuntu/Desktop"
         
         ################################
@@ -73,149 +73,124 @@ class Window(QWidget):
 
         self.pageCombo = QComboBox()
         self.pageCombo.addItems(["AlexNet", "VGG", "InceptionNet", "XceptionNet", "ResNet"])
-        self.pageCombo.activated.connect(self.switchPage)
 
-        # Create the stacked layout
-
-        # self.stackedLayout = QStackedLayout()
-
-        # # Create the page for Alexnet
-        # AlexNet = QWidget()
-        #  # -> For define the hyparameter
-        # AlexNetLayout = QFormLayout()
-        # AlexNetLayout.setAlignment(Qt.AlignTop)
-        # self.AlexNetFunctions, self.AlexNetLoss  = QLineEdit(), QLineEdit()
-        # AlexNetLayout.addRow("Activate Functions:", self.AlexNetFunctions)
-        # AlexNetLayout.addRow("Loss Functions:", self.AlexNetLoss)
+        # Create the page for Activate and Loss function
+        self.ActLoss = QWidget()
+         # -> For define the hyparameter
+        ActLossLayout = QFormLayout()
+        ActLossLayout.setAlignment(Qt.AlignTop)
+        self.Functions, self.Loss  = QLineEdit(), QLineEdit()
+        ActLossLayout.addRow("Activate Functions:", self.Functions)
+        ActLossLayout.addRow("Loss Functions:", self.Loss)
         
-        # AlexNet.setLayout(AlexNetLayout)
-        # self.stackedLayout.addWidget(AlexNet)
-
-        # # Create the page for VGG
-        # VGG = QWidget()
-        #  # -> For define the hyparameter
-        # VGGLayout = QFormLayout()
-        # VGGLayout.setAlignment(Qt.AlignTop)
-        # self.VGGFunctions, self.VGGLoss  = QLineEdit(), QLineEdit()
-        # VGGLayout.addRow("Activate Functions:", self.VGGFunctions)
-        # VGGLayout.addRow("Loss Functions:", self.VGGLoss)
-        
-        # VGG.setLayout(VGGLayout)
-        # self.stackedLayout.addWidget(VGG)
-
-        # # Create the page for the InceptionNet
-        # InceptionNet = QWidget()
-        #  # -> For define the hyparameter
-        # InceptionNetLayout = QFormLayout()
-        # InceptionNetLayout.setAlignment(Qt.AlignTop)
-        # self.InceptionNetFunctions, self.InceptionNetLoss  = QLineEdit(), QLineEdit()
-        # InceptionNetLayout.addRow("Activate Functions:", self.InceptionNetFunctions)
-        # InceptionNetLayout.addRow("Loss Functions:", self.InceptionNetLoss)
-        
-        # InceptionNet.setLayout(InceptionNetLayout)
-        # self.stackedLayout.addWidget(InceptionNet)
-        
-        # # Create the page for the XceptionNet
-        # XceptionNet = QWidget()
-        #  # -> For define the hyparameter
-        # XceptionNetLayout = QFormLayout()
-        # XceptionNetLayout.setAlignment(Qt.AlignTop)
-        # self.XceptionNetFunctions, self.XceptionNetLoss = QLineEdit(), QLineEdit()
-        # XceptionNetLayout.addRow("Activate Functions:", self.XceptionNetFunctions)
-        # XceptionNetLayout.addRow("Activate Functions:", self.XceptionNetLoss)
-
-        # XceptionNet.setLayout(XceptionNetLayout)
-        # self.stackedLayout.addWidget(XceptionNet)
-
-        # # Create the page for the ResNet
-        # ResNet = QWidget()
-        #  # -> For define the hyparameter
-        # ResNetLayout = QFormLayout()
-        # ResNetLayout.setAlignment(Qt.AlignTop)
-        # self.ResNetFunctions, self.ResNetLoss  = QLineEdit(), QLineEdit()
-        # ResNetLayout.addRow("Activate Functions:", self.ResNetFunctions)
-        # ResNetLayout.addRow("Loss Functions:", self.ResNetLoss)
-        
-        # ResNet.setLayout(ResNetLayout)
-        # self.stackedLayout.addWidget(ResNet)
-
-        # Create Vertical Box to store comboBox and stackedLayout
+        self.ActLoss.setLayout(ActLossLayout)
+       
+        # Create Vertical Box to store comboBox
         comboBox = QVBoxLayout()
         comboBox.addWidget(self.pageCombo)
-        # comboBox.addLayout(self.stackedLayout)
+        comboBox.addWidget(self.ActLoss)
         comboBoxWG = QWidget()
         comboBoxWG.setLayout(comboBox)
 
         # Create Augmentation Widget
         AugmentationLabel = QLabel("Augmentation:")
+        # Define label_mode : 'binary' or 'categorical' --- batch_size: size of batches of data. default=32 --- image_size
             # Horizontal and Vertical Shift Augmentation
-        HVShift = QHBoxLayout()
-        HVShiftLabel = QLabel("H/V Shift:")
-        HVShiftLabel.setMinimumWidth(140)
-        self.HVShiftSlider = QSlider(Qt.Horizontal)
-        self.HVShiftSlider.setMinimum(-200)
-        self.HVShiftSlider.setMaximum(200)
-        self.HVShiftSlider.setValue(0)
-        HVShift.addWidget(HVShiftLabel)
-        HVShift.addWidget(self.HVShiftSlider)
-        HVShiftWG = QWidget()
-        HVShiftWG.setLayout(HVShift)
+        WHShift = QHBoxLayout()
+                # Horizontal
+        WidthLayout = QFormLayout()
+        self.WidthShift = QLineEdit()
+        WidthLayout.addRow("Width Shift: ", self.WidthShift)
+
+                # Vertical
+        HeightLayout = QFormLayout()
+        self.HeightShift = QLineEdit()
+        HeightLayout.addRow("Height Shift: ", self.HeightShift)
+
+        WHShift.addLayout(WidthLayout)
+        WHShift.addLayout(HeightLayout)
+        WHShiftWG = QWidget()
+        WHShiftWG.setLayout(WHShift)
             # Horizontal and Vertical Flip Augmentation
         HVFlip = QHBoxLayout()
-        HVFlipLabel = QLabel("H/V Flip:")
-        HVFlipLabel.setMinimumWidth(140)
-        self.HVFlipSlider = QSlider(Qt.Horizontal)
-        self.HVFlipSlider.setMinimum(-200)
-        self.HVFlipSlider.setMaximum(200)
-        self.HVFlipSlider.setValue(0)
-        HVFlip.addWidget(HVFlipLabel)
-        HVFlip.addWidget(self.HVFlipSlider)
+                 # Horizontal
+        HFlipLabel = QLabel("Horizontal Flip:")
+        self.HFlipCBB = QComboBox()
+        self.HFlipCBB.addItems(["True", "False"])
+    
+                # Vertical
+        VFlipLabel = QLabel("Vertical Flip:")
+        self.VFlipCBB = QComboBox()
+        self.VFlipCBB.addItems(["True", "False"])
+
+        HVFlip.addWidget(HFlipLabel)
+        HVFlip.addWidget(self.HFlipCBB)
+        HVFlip.addWidget(VFlipLabel)
+        HVFlip.addWidget(self.VFlipCBB)
         HVFlipWG = QWidget()
         HVFlipWG.setLayout(HVFlip)
+    
+
             # Radnom Rotation Augmentation
         RRotation = QHBoxLayout()
-        RRotationLabel = QLabel("Random Rotation:")
+        RRotationLabel = QLabel("Rotation Range:")
         RRotationLabel.setMinimumWidth(140)
         self.RRotationSlider = QSlider(Qt.Horizontal)
-        self.RRotationSlider.setMinimum(-200)
-        self.RRotationSlider.setMaximum(200)
+        self.RRotationSlider.setMinimum(0)
+        self.RRotationSlider.setMaximum(180)
         self.RRotationSlider.setValue(0)
         RRotation.addWidget(RRotationLabel)
         RRotation.addWidget(self.RRotationSlider)
         RRotationWG = QWidget()
         RRotationWG.setLayout(RRotation)
-            # Random Brightness Augmentation
-        RBrightness = QHBoxLayout()
-        RBrightnessLabel = QLabel("Random Brightness:")
-        RBrightnessLabel.setMinimumWidth(140)
-        self.RBrightnessSlider = QSlider(Qt.Horizontal)
-        self.RBrightnessSlider.setMinimum(-200)
-        self.RBrightnessSlider.setMaximum(200)
-        self.RBrightnessSlider.setValue(0)
-        RBrightness.addWidget(RBrightnessLabel)
-        RBrightness.addWidget(self.RBrightnessSlider)
-        RBrightnessWG = QWidget()
-        RBrightnessWG.setLayout(RBrightness)
+
+        #     # Random Brightness Augmentation
+        # RBrightness = QHBoxLayout()
+        # RBrightnessLabel = QLabel("Brightness Range:")
+        # RBrightnessLabel.setMinimumWidth(140)
+        # self.RBrightnessSlider = QSlider(Qt.Horizontal)
+        # self.RBrightnessSlider.setMinimum(-200)
+        # self.RBrightnessSlider.setMaximum(200)
+        # self.RBrightnessSlider.setValue(0)
+        # RBrightness.addWidget(RBrightnessLabel)
+        # RBrightness.addWidget(self.RBrightnessSlider)
+        # RBrightnessWG = QWidget()
+        # RBrightnessWG.setLayout(RBrightness)
+
             # Random Zoom Augmentation
         RZoom = QHBoxLayout()
-        RZoomLabel = QLabel("Random Zoom:")
+        RZoomLabel = QLabel("Zoom Range:")
         RZoomLabel.setMinimumWidth(140)
         self.RZoomSlider = QSlider(Qt.Horizontal)
-        self.RZoomSlider.setMinimum(-200)
-        self.RZoomSlider.setMaximum(200)
-        self.RZoomSlider.setValue(0)
+        self.RZoomSlider.setMinimum(0)
+        self.RZoomSlider.setMaximum(100)
+        self.RZoomSlider.setValue(0) # -> Remember to devide by 100 for this variable
         RZoom.addWidget(RZoomLabel)
         RZoom.addWidget(self.RZoomSlider)
         RZoomWG = QWidget()
         RZoomWG.setLayout(RZoom)
 
+            # Random Shear Augmentation
+        RShear = QHBoxLayout()
+        RShearLabel = QLabel("Shear Range:")
+        RShearLabel.setMinimumWidth(140)
+        self.RShearSlider = QSlider(Qt.Horizontal)
+        self.RShearSlider.setMinimum(0)
+        self.RShearSlider.setMaximum(100)
+        self.RShearSlider.setValue(0) # -> Remember to devide by 100 for this variable
+        RShear.addWidget(RShearLabel)
+        RShear.addWidget(self.RShearSlider)
+        RShearWG = QWidget()
+        RShearWG.setLayout(RShear)
+
         augmentation = QVBoxLayout()
         augmentation.addWidget(AugmentationLabel)
-        augmentation.addWidget(HVShiftWG)
+        augmentation.addWidget(WHShiftWG)
         augmentation.addWidget(HVFlipWG)
         augmentation.addWidget(RRotationWG)
-        augmentation.addWidget(RBrightnessWG)
+        # augmentation.addWidget(RBrightnessWG)
         augmentation.addWidget(RZoomWG)
+        augmentation.addWidget(RShearWG)
         augmentationWG = QWidget()
         augmentationWG.setLayout(augmentation)
         augmentationWG.setGeometry(0,0,300,300)
@@ -243,7 +218,7 @@ class Window(QWidget):
             ###Testing###
             #############
         # Create label name
-        testingName = QLabel("Testing")
+        testingName = QLabel("Testing: ")
         # Create load weight
         testingLayout = QVBoxLayout()
         testingLayoutWG = QWidget()
@@ -264,8 +239,8 @@ class Window(QWidget):
         self.weightFolder = QToolButton() # -> thay QPushButton by another one
         self.imageFolder.setIcon(QIcon("./icon/open-folder.svg"))
         self.weightFolder.setIcon(QIcon("./icon/open-folder.svg"))
-        #self.imageFolder.clicked.connect(self._openTrainDirectory)
-        #self.weightFolder.clicked.connect(self._openTestDirectory)
+        self.imageFolder.clicked.connect(self._openTestImage)
+        self.weightFolder.clicked.connect(self._openTestWeight)
         testingMouse.addWidget(self.imageFolder)
         testingMouse.addWidget(self.weightFolder)
         testingMouseWG = QWidget()
@@ -277,9 +252,9 @@ class Window(QWidget):
 
         # Testing Button
         testingBtn = QHBoxLayout()
-        self.btnImage = QPushButton("Image")
+        self.btnImage = QPushButton("Test")
         self.btnImage.clicked.connect(self._testImageClicked)
-        self.btnWeight = QPushButton("Weight")
+        self.btnWeight = QPushButton("Save")
         self.btnWeight.clicked.connect(self._testWeightClicked)
         testingBtn.addWidget(self.btnImage)
         testingBtn.addWidget(self.btnWeight)
@@ -307,23 +282,30 @@ class Window(QWidget):
         mainLayout.addWidget(hboxLayoutRightWG)
         self.setLayout(mainLayout)
 
-    # When switch page button click
-    # def switchPage(self):
-    #     self.stackedLayout.setCurrentIndex(self.pageCombo.currentIndex())
-    
+  
     # When train button clicked
     def _trainClicked(self):
+        
+        # Get training dir and validation dir
+        trainingPath = self.trainDir.text()
+        validPath = self.testDir.text()
+
+        # Define activat function and loss function
+            # Ignore
+        
+        # Get the value of ImageDataGenerator
+
         if self.pageCombo.currentText() == "AlexNet":
             # Make Data augmentation and train
+            pass
         elif self.pageCombo.currentText() == "VGG":
             pass
         elif self.pageCombo.currentText() == "InceptionNet":
             pass
         elif self.pageCombo.currentText() == "XceptionNet":
+            pass
         else:
             pass
-        print(self.Classes)
-        pass
 
     # When reset button clicked
     def _resetClicked(self):
@@ -333,14 +315,8 @@ class Window(QWidget):
         self.testDir.setText("")
 
         # ComboBox Reset event
-        self.AlexNetFunctions.setText("")
-        self.AlexNetLoss.setText("")
-        self.InceptionNetFunctions.setText("")
-        self.InceptionNetLoss.setText("")
-        self.VGGFunctions.setText("")
-        self.VGGLoss.setText("")
-        self.ResNetFunctions.setText("")
-        self.ResNetLoss.setText("")
+        self.Functions.setText("")
+        self.Loss.setText("")
         # Augmentation Reset event
         self.HVShiftSlider.setValue(0)
         self.HVFlipSlider.setValue(0)
@@ -353,23 +329,37 @@ class Window(QWidget):
     def _openTrainDirectory(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,self.title, self.defaultPath,"All Files (*)", options=options)
-        if len(fileName) < 1:
+        folderPath = QFileDialog.getExistingDirectory(self,"Open Path", options=options)
+        if len(folderPath) < 1:
             return
-        self.trainDir.setText(fileName)
+        self.trainDir.setText(folderPath)
     def _openTestDirectory(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self,self.title, self.defaultPath,"All Files (*)", options=options)
-        if len(fileName) < 1:
+        folderPath = QFileDialog.getExistingDirectory(self,"Open Path", options=options)
+        if len(folderPath) < 1:
             return
-        self.testDir.setText(fileName)
+        self.testDir.setText(folderPath)
     
+    def _openTestImage(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Image Files (*.jpg);;Image Files (*.png);;Image Files (*.jpeg)", options=options)
+
+
+    def _openTestWeight(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        filename, _ = QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Weight Files (*.h5);;Weight Files (*.pb)", options=options)
+
     def _testImageClicked(self):
         pass
 
+
     def _testWeightClicked(self):
         pass
+
+
 
 if __name__ == "__main__":
 
