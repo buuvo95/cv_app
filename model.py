@@ -10,11 +10,11 @@ def AlexNet(input_shape, num_classes):
     model = tf.keras.layer.Sequential()
 
     # First Convolution layer
-    model.add(tf.keras.layers.Conv2D(filters = 96, kernel_size = (11,11), strides = 4, padding = 'valid', activation = 'relu', kernel_initializer=initializer, input_shape))
+    model.add(tf.keras.layers.Conv2D(filters = 96, kernel_size = (11,11), strides = 4, padding = 'valid', activation = 'relu', kernel_initializer=initializer, input_shape = input_shape))
     model.add(tf.keras.layers.MaxPooling2D((3,3), strides=2, padding='valid'))
 
     # Second Convolution layer
-    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size=(5,5), padding='valid', strides=2 activation='relu', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size=(5,5), padding='valid', strides=2, activation='relu', kernel_initializer=initializer))
     model.add(tf.keras.layers.MaxPooling2D((3,3), strides=2, padding='valid'))
     
     # Third Convolution layer
@@ -36,10 +36,6 @@ def AlexNet(input_shape, num_classes):
     mmode.add(tf.keras.layers.Dropout(0.5))
     # Third Dense layer - Output
     model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
-
-    #Compile model
-    optimizer = tf.keras.optimizers.SGDW(lr = 0.01, momentum = 0.9, weight_decay = 0.0005)
-    model.compile(optimizer = optimizer, loss = 'categorical_crossentropy', metrics = ['accuracy'])
     return model
 
 # InceptionNet - Google LeNet
@@ -318,7 +314,7 @@ def VGGNet(input_shape, num_classes):
         activation = 'relu',
     ))
     model.add(tf.keras.layers.MaxPooling2D(
-        pool_size = (2,2)
+        pool_size = (2,2),
         strides = 2,
         padding = 'same'
     ))
@@ -339,7 +335,7 @@ def VGGNet(input_shape, num_classes):
         activation = 'relu',
     ))
     model.add(tf.keras.layers.MaxPooling2D(
-        pool_size = (2,2)
+        pool_size = (2,2),
         strides = 2,
         padding = 'same'
     ))
@@ -376,7 +372,7 @@ def VGGNet(input_shape, num_classes):
         activation = 'relu',
     ))
     model.add(tf.keras.layers.MaxPooling2D(
-        pool_size = (2,2)
+        pool_size = (2,2),
         strides = 2,
         padding = 'same'
     ))
@@ -413,7 +409,7 @@ def VGGNet(input_shape, num_classes):
         activation = 'relu',
     ))
     model.add(tf.keras.layers.MaxPooling2D(
-        pool_size = (2,2)
+        pool_size = (2,2),
         strides = 2,
         padding = 'same'
     ))
@@ -442,7 +438,7 @@ def VGGNet(input_shape, num_classes):
         activation = 'relu',
     ))
     model.add(tf.keras.layers.MaxPooling2D(
-        pool_size = (2,2)
+        pool_size = (2,2),
         strides = 2,
         padding = 'same'
     ))

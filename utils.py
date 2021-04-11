@@ -5,53 +5,6 @@ import tensorflow as tf
 from matplotlib import pyplot as plt
 import shutil
 
-# Data processing
-def data_processing(train_dir, test_dir, target_size, batch_size, is_binary = False, is_augmentation = True)
-    # Adding augmentation here
-    if not is_augmentation:
-        train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale= 1. / 255)
-    else:
-        train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-            rescale = 1. / 255,
-            rotation_range = 40,
-            width_shift_range = 0.2,
-            height_shift_range = 0.2,
-            shear_range = 0.2,
-            zoom_range = 0.2,
-            horizontal_flip = True
-        )
-    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale= 1. / 255)
-    
-    if not is_binary:
-        train_generator = train_datagen.flow_from_directory(
-            train_dir,
-            target_size = target_size,
-            batch_size= batch_size,
-            class_mode='categorical'
-        )
-
-        validation_generation = test_datagen.flow_from_directory(
-            test_dir,
-            target_size = target_size,
-            batch_size = batch_size,
-            class_mode= 'categorical'
-        )
-    else:
-        train_generator = train_datagen.flow_from_directory(
-            train_dir,
-            target_size=target_size,
-            batch_size=batch_size,
-            class_mode='binary'
-        )
-        validation_generation = test_datagen.flow_from_directory(
-            test_dir,
-            target_size = target_size,
-            batch_size = batch_size,
-            class_mode= 'binary'
-        )
-
-    return train_generator, validation_generation
-
 # Make training set and test set from dataset
 def make_dataset(dataset_path, train_path, test_path, ratio):
     """

@@ -17,8 +17,9 @@ class trainDatagen():
             rotation_range = rotation_range,
             zoom_range = zoom_range,
             shear_range = shear_range,
-            horizontal_flip = horizontal_flip
-            vertical_flip = vertical_flip
+            horizontal_flip = horizontal_flip,
+            vertical_flip = vertical_flip,
+            fill_mode = 'nearest'
             )
     def generator(self, train_dir, target_size, batch_size, class_mode):
         self.train_generator = self.train_datagen(

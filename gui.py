@@ -1,10 +1,11 @@
 import sys
+import os
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from datagen import *
-# from model import *
+from model import *
 
 
 ##test
@@ -312,31 +313,155 @@ class Window(QWidget):
   
     # When train button clicked
     def _trainClicked(self):
-        
+        msg = QMessageBox()
+
         # Get training dir and validation dir
         trainingPath = self.trainDir.text()
         validPath = self.testDir.text()
+        
+        if trainingPath == '' or validPath == '':
+            msg.setWindowTitle("Path Error!")
+            msg.setText("Please re-enter folder path!")
+            x = msg.exec_()
+            return
+        else:
+            # Check training path and valid path
+            if not (os.path.exists(trainingPath) and os.path.exists(validPath)):
+                msg.setWindowTitle("Path Error!")
+                msg.setText("Please check folder path again!")
+                x = msg.exec_()
+                return
+            else:
+                # Count folder
+                trainCount = testCount = 0
+
+
+                for foldername in os.listdir(trainingPath):
+                    trainCount += 1
+                for foldername in os.listdir(validPath):
+                    testCount += 1
+                # Check trainCount is equal to testCount
+                if trainCount != testCount:
+                    msg.setWindowTitle("Data Error!")
+                    msg.setText("Please check test and validation sets again!")
+                    x = msg.exec_()
+                    return
+                else:
+                    # Check the number of class
+                    mode = ""
+                    if trainCount == 2:
+                        mode = 'binary'
+                        loss = 'binary_crossentropy'
+                    elif trainCount > 2:
+                        mode = 'categorical'
+                        loss = 'categorical_crossentropy'
+                    else:
+                        msg.setWindowTitle("Data Error!")
+                        msg.setText("Please check test and validation sets again!")
+                        x = msg.exec_()
 
         # Define activat function and loss function
             # Ignore
         
-        # Get the value of ImageDataGenerator
-
-        if self.pageCombo.currentText() == "AlexNet":
-            # Make Data augmentation and train
-            pass
-        elif self.pageCombo.currentText() == "VGG":
-            pass
-        elif self.pageCombo.currentText() == "InceptionNet":
-            pass
-        elif self.pageCombo.currentText() == "XceptionNet":
-            pass
+        # The augmentation value:
+            # Width shift
+        if self.WidthShift.text() == '':
+            width_shift = 0.0
         else:
-            pass
+            try:
+                width_shift = float(self.WidthShift.text())
+            except:
+                msg.setWindowTitle("Value Eror")
+                msg.setText("Please enter float number!")
+                x = msg.exec_()
+                return
+        
+            # Height Shift
+        if self.HeightShift.text() == '':
+            height_shift = 0.0
+        else:
+            try:
+                height_shift = float(self.HeightShift.text())
+            except:
+                msg.setWindowTitle("Value Eror")
+                msg.setText("Please enter float number!")
+                x = msg.exec_()
+                return
 
+            # Check Witdh Shift and Height Shift in range
+        if width_shift < -1.0 or width_shift >= 1.0 or height_shift < -1.0 or height_shift >= 1.0:
+            msg.setWindowTitle("Value Eror")
+            msg.setText("Please enter float number in range [-1.0,1.0) !")
+            x = msg.exec_()
+            return
+
+            # Horizontal and vertical Flip
+        horizontal_flip = self.HFlipCBB.currentText()
+        vertical_flip  = self.VFlipCBB.currentText()
+
+            # Rotation, Zoom, Shear Range values:
+        rotationValue = self.RRotationSlider.value()
+        zoomValue = round(self.RZoomSlider.value()/100,1)
+        shearValue = round(self.RShearSlider.value()/100,1)
+        
+        # Get the target_size, model
+        if self.pageCombo.currentText() == "AlexNet":
+            target_size = (256,256)
+            model = AlexNet(target_size, trainCount)
+        elif self.pageCombo.currentText() == "VGG":
+            target_size = (224,224)
+            model = VGGNet(target_size, trainCount)
+        elif self.pageCombo.currentText() == "InceptionNet":
+            target_size = (224,224)
+            model = InceptionNet(target_size, trainCount)
+        elif self.pageCombo.currentText() == "XceptionNet":
+            target_size = (299,299)
+            model = XceptionNet(target_size, trainCount)
+        else:
+            target_size = (224,224)
+            num_res_block = 5
+            model = ResNet(target_size, num_res_block, trainCount)
+        
+        # Define train and test datagenerator
+        trainDatagen = trainDatagen(
+                                    width_shift,
+                                    height_shift,
+                                    rotationValue,
+                                    zoomValue,
+                                    shearValue,
+                                    bool(horizontal_flip),
+                                    bool(vertical_flip)
+        )
+        testDatagen = testDatagen()
+
+        trainGenerator = trainDatagen.generator(
+                                    train_dir = trainingPath,
+                                    target_size = target_size,
+                                    batch_size = 16,
+                                    class_mode = class_mode
+        )
+        
+        testGenerator = testDatagen.generator(
+                                    train_dir = validPath,
+                                    target_size = target_size,
+                                    batch_size = 16,
+                                    class_mode = class_mode
+        )
+
+        optimizer = tf.keras.optimizers.SGDW(lr = 0.01, momentum = 0.9, weight_decay = 0.0005)
+        model.compile(optimizer = optimizer, loss = loss, metrics = ['accuracy'])
+        
+        history = model.fit_generator(
+                                    trainGenerator,
+                                    steps_per_epoch=100,
+                                    epochs=30,
+                                    validation_data=testGenerator,
+                                    validation_steps=50
+        )
+
+        
     # When reset button clicked
     def _resetClicked(self):
-        
         # DataSet Reset event
         self.trainDir.setText("")
         self.testDir.setText("")
