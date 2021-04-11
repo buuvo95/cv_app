@@ -7,24 +7,24 @@ def AlexNet(input_shape, num_classes):
     initializer = tf.keras.initializers.GlorotNormal() 
 
     # Define the model
-    model = tf.keras.layer.Sequential()
+    model = tf.keras.Sequential()
 
     # First Convolution layer
     model.add(tf.keras.layers.Conv2D(filters = 96, kernel_size = (11,11), strides = 4, padding = 'valid', activation = 'relu', kernel_initializer=initializer, input_shape = input_shape))
     model.add(tf.keras.layers.MaxPooling2D((3,3), strides=2, padding='valid'))
 
     # Second Convolution layer
-    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size=(5,5), padding='valid', strides=2, activation='relu', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size=(5,5), padding='valid', strides=1, activation='relu'))#, kernel_initializer=initializer))
     model.add(tf.keras.layers.MaxPooling2D((3,3), strides=2, padding='valid'))
     
     # Third Convolution layer
-    model.add(tf.keras.layers.Conv2D(filters = 384, kernel_size=(3,3), padding='valid', strides=1, activation='relu', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(filters = 384, kernel_size=(3,3), padding='valid', strides=1, activation='relu'))#, kernel_initializer=initializer))
 
     # Fourth Convolution layer
-    model.add(tf.keras.layers.Conv3D(filters = 384, kernel_size=(3, 3), padding='valid', strides=1 , activation='relu', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(filters = 384, kernel_size=(3,3), padding='valid', strides=1 , activation='relu'))#, kernel_initializer=initializer))
 
     # Fifth Convolution layer
-    model.add(tf.keras.layers.Conv2D(filter = 256, kernel_size=(3,3,192), padding='valid', strides=1, activation='relu', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size=(3,3), padding='valid', strides=1, activation='relu'))#, kernel_initializer=initializer))
     model.add(tf.keras.layers.MaxPooling2D((3,3), padding='valid', strides=2))
 
     model.add(tf.keras.layers.Flatten())
@@ -33,7 +33,7 @@ def AlexNet(input_shape, num_classes):
     model.add(tf.keras.layers.Dropout(0.5))
     # Second Dense layer
     model.add(tf.keras.layers.Dense(units = 4096, activation='relu'))
-    mmode.add(tf.keras.layers.Dropout(0.5))
+    model.add(tf.keras.layers.Dropout(0.5))
     # Third Dense layer - Output
     model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
     return model

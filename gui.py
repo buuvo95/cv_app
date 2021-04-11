@@ -348,12 +348,12 @@ class Window(QWidget):
                     return
                 else:
                     # Check the number of class
-                    mode = ""
+                    class_mode = ""
                     if trainCount == 2:
-                        mode = 'binary'
+                        class_mode = 'binary'
                         loss = 'binary_crossentropy'
                     elif trainCount > 2:
-                        mode = 'categorical'
+                        class_mode = 'categorical'
                         loss = 'categorical_crossentropy'
                     else:
                         msg.setWindowTitle("Data Error!")
@@ -407,23 +407,28 @@ class Window(QWidget):
         # Get the target_size, model
         if self.pageCombo.currentText() == "AlexNet":
             target_size = (256,256)
-            model = AlexNet(target_size, trainCount)
+            input_shape = (256,256,3)
+            model = AlexNet(input_shape, trainCount)
         elif self.pageCombo.currentText() == "VGG":
             target_size = (224,224)
-            model = VGGNet(target_size, trainCount)
+            input_shape = (224,224,3)
+            model = VGGNet(input_shape, trainCount)
         elif self.pageCombo.currentText() == "InceptionNet":
             target_size = (224,224)
-            model = InceptionNet(target_size, trainCount)
+            input_shape = (224,224,3)
+            model = InceptionNet(input_shape, trainCount)
         elif self.pageCombo.currentText() == "XceptionNet":
             target_size = (299,299)
-            model = XceptionNet(target_size, trainCount)
+            input_shape = (299,299,3)
+            model = XceptionNet(input_shape, trainCount)
         else:
             target_size = (224,224)
+            input_shape = (224,224,3)
             num_res_block = 5
-            model = ResNet(target_size, num_res_block, trainCount)
+            model = ResNet(input_shape, num_res_block, trainCount)
         
         # Define train and test datagenerator
-        trainDatagen = trainDatagen(
+        trainData = trainDatagen(
                                     width_shift,
                                     height_shift,
                                     rotationValue,
@@ -432,17 +437,17 @@ class Window(QWidget):
                                     bool(horizontal_flip),
                                     bool(vertical_flip)
         )
-        testDatagen = testDatagen()
+        testData = testDatagen()
 
-        trainGenerator = trainDatagen.generator(
-                                    train_dir = trainingPath,
+        trainGenerator = trainData.generator(
+                                    trainingPath,
                                     target_size = target_size,
                                     batch_size = 16,
                                     class_mode = class_mode
         )
         
-        testGenerator = testDatagen.generator(
-                                    train_dir = validPath,
+        testGenerator = testData.generator(
+                                    validPath,
                                     target_size = target_size,
                                     batch_size = 16,
                                     class_mode = class_mode
@@ -450,14 +455,14 @@ class Window(QWidget):
 
         optimizer = tf.keras.optimizers.SGDW(lr = 0.01, momentum = 0.9, weight_decay = 0.0005)
         model.compile(optimizer = optimizer, loss = loss, metrics = ['accuracy'])
-        
-        history = model.fit_generator(
-                                    trainGenerator,
-                                    steps_per_epoch=100,
-                                    epochs=30,
-                                    validation_data=testGenerator,
-                                    validation_steps=50
-        )
+        print(model.summary())
+        # history = model.fit_generator(
+        #                             trainGenerator,
+        #                             steps_per_epoch=100,
+        #                             epochs=30,
+        #                             validation_data=testGenerator,
+        #                             validation_steps=50
+        # )
 
         
     # When reset button clicked

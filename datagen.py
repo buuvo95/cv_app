@@ -22,22 +22,22 @@ class trainDatagen():
             fill_mode = 'nearest'
             )
     def generator(self, train_dir, target_size, batch_size, class_mode):
-        self.train_generator = self.train_datagen(
+        self.train_generator = self.train_datagen.flow_from_directory(
             train_dir,
             target_size = target_size,
             batch_size = batch_size,
             class_mode = class_mode
         )
-        return train_generator
+        return self.train_generator
 
 class testDatagen():
     def __init__(self):
         self.test_datagen = ImageDataGenerator(rescale = 1./255)
     def generator(self, test_dir, target_size, batch_size, class_mode):
-        self.test_generator = self.test_datagen(
+        self.test_generator = self.test_datagen.flow_from_directory(
             test_dir,
             target_size = target_size,
             batch_size = batch_size,
             class_mode = class_mode
         )
-        return test_generator
+        return self.test_generator
