@@ -453,7 +453,7 @@ class Window(QWidget):
                                     class_mode = class_mode
         )
 
-        optimizer = tf.keras.optimizers.SGDW(lr = 0.01, momentum = 0.9, weight_decay = 0.0005)
+        optimizer = tf.keras.optimizers.SGD(lr = 0.01, momentum = 0.9)
         model.compile(optimizer = optimizer, loss = loss, metrics = ['accuracy'])
         print(model.summary())
         # history = model.fit_generator(
