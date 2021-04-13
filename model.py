@@ -2,7 +2,7 @@
 # 
 import tensorflow as tf
 
-def AlexNet(input_shape, num_classes):
+def AlexNet(input_shape, num_classes, last_activation):
     # Define Initializer
     initializer = tf.keras.initializers.GlorotNormal() 
 
@@ -35,7 +35,7 @@ def AlexNet(input_shape, num_classes):
     model.add(tf.keras.layers.Dense(units = 4096, activation='relu'))
     model.add(tf.keras.layers.Dropout(0.5))
     # Third Dense layer - Output
-    model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
+    model.add(tf.keras.layers.Dense(num_classes, activation=last_activation))
     return model
 
 # InceptionNet - Google LeNet
@@ -75,7 +75,7 @@ def inception_module(x,
     output = tf.keras.layers.concatenate([conv_1x1, conv_3x3, conv_5x5, pool_proj], axis=3, name=name)
     return output
 
-def InceptionNet(input_shape, num_classes):
+def InceptionNet(input_shape, num_classes, last_activation):
     inputs = tf.keras.layers.Input(shape=input_shape)
     x = tf.keras.layers.Conv2D(64,(7,7), padding='same', strides=(2,2), activation='relu',
             name = 'conv_1_7x7/2', kernel_initializer=tf.keras.initializers.glorot_uniform(), 
@@ -209,7 +209,7 @@ def InceptionNet(input_shape, num_classes):
 
     x = tf.keras.layers.Dropout(0.4)(x)
 
-    outputs = tf.keras.layers.Dense(num_classes, activation='softmax', name='output')(x)
+    outputs = tf.keras.layers.Dense(num_classes, activation=last_activation, name='output')(x)
 
     model = tf.keras.Model(inputs, [outputs, x1, x2], name = 'inception_v1')
     return model
@@ -278,7 +278,7 @@ def middle_flow(tensor):
     return tensor
 
 # Exit flow
-def exit_flow(tensor, num_classes):
+def exit_flow(tensor, num_classes, last_activation):
     x = tf.keras.layers.ReLU()(tensor)
     x = sep_bn(x, filters = 728, kernel_size = 3)
     x = tf.keras.layers.ReLU()(tensor)
@@ -297,19 +297,19 @@ def exit_flow(tensor, num_classes):
     x = tf.keras.layers.Dropout(0.7)(x)
     x = tf.keras.layers.Dense(units = 1024, activation= 'relu')(x)
 
-    x = tf.keras.layers.Dense(units = num_classes, activation = 'softmax')(x)
+    x = tf.keras.layers.Dense(units = num_classes, activation = last_activation)(x)
 
     return x
-def XceptionNet(input_shape, num_classes):
+def XceptionNet(input_shape, num_classes, last_activation):
     inputs = tf.keras.layers.Input(shape = (299,299,3))
     x = entry_flow(inputs)
     x = middle_flow(x)
-    outputs = exit_flow(x, num_classes)
+    outputs = exit_flow(x, num_classes, last_activation)
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     return model
 
 # VGG model
-def VGGNet(input_shape, num_classes):
+def VGGNet(input_shape, num_classes, last_activation):
     model = tf.keras.Sequential()
     # 1
     model.add(tf.keras.layers.Conv2D(
@@ -459,7 +459,7 @@ def VGGNet(input_shape, num_classes):
     model.add(tf.keras.layers.Flatten())
     model.add(tf.keras.layers.Dense(units = 4096, activation = 'relu'))
     model.add(tf.keras.layers.Dense(units = 4096, activation = 'relu'))
-    model.add(tf.keras.layers.Dense(units = num_classes, activation = 'softmax'))
+    model.add(tf.keras.layers.Dense(units = num_classes, activation = last_activation))
     return model
 
 # Resnet code block
@@ -473,7 +473,7 @@ def res_net_block(input_data, filters, conv_size):
     x = tf.keras.layers.Activation('relu')(x)
     return x 
 
-def ResNet(input_shape, num_res_block, num_classes):
+def ResNet(input_shape, num_res_block, num_classes, last_activation):
     inputs = tf.keras.Input(shape= input_shape)
     x = tf.keras.layers.Conv2D(filters = 32, kernel_size = (3,3), activation='relu')(inputs)
     x = tf.keras.layers.Conv2D(filters = 64, kernel_size = (3,3), activation='relu')(x)
@@ -487,7 +487,7 @@ def ResNet(input_shape, num_res_block, num_classes):
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
     x = tf.keras.layers.Dense(units = 256, activation='relu')(x)
     x = tf.keras.layers.Dropout(0.5)(x)
-    outputs = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+    outputs = tf.keras.layers.Dense(num_classes, activation=last_activation)(x)
 
     model = tf.keras.Model(inputs, outputs)
     return model

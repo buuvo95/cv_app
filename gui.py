@@ -352,14 +352,16 @@ class Window(QWidget):
                     if trainCount == 2:
                         class_mode = 'binary'
                         loss = 'binary_crossentropy'
+                        last_activation = 'sigmoid'
                     elif trainCount > 2:
                         class_mode = 'categorical'
                         loss = 'categorical_crossentropy'
+                        last_activation = 'softmax'
                     else:
                         msg.setWindowTitle("Data Error!")
                         msg.setText("Please check test and validation sets again!")
                         x = msg.exec_()
-
+        
         # Define activat function and loss function
             # Ignore
         
@@ -408,25 +410,31 @@ class Window(QWidget):
         if self.pageCombo.currentText() == "AlexNet":
             target_size = (256,256)
             input_shape = (256,256,3)
-            model = AlexNet(input_shape, trainCount)
+            if trainCount == 2:
+                model = AlexNet(input_shape, trainCount - 1, last_activation)
+            else:
+                model = AlexNet(input_shape, trainCount, last_activation)
         elif self.pageCombo.currentText() == "VGG":
             target_size = (224,224)
             input_shape = (224,224,3)
-            model = VGGNet(input_shape, trainCount)
+            model = VGGNet(input_shape, trainCount, last_activation)
         elif self.pageCombo.currentText() == "InceptionNet":
             target_size = (224,224)
             input_shape = (224,224,3)
-            model = InceptionNet(input_shape, trainCount)
+            model = InceptionNet(input_shape, trainCount, last_activation)
         elif self.pageCombo.currentText() == "XceptionNet":
             target_size = (299,299)
             input_shape = (299,299,3)
-            model = XceptionNet(input_shape, trainCount)
+            model = XceptionNet(input_shape, trainCount, last_activation)
         else:
             target_size = (224,224)
             input_shape = (224,224,3)
             num_res_block = 5
-            model = ResNet(input_shape, num_res_block, trainCount)
-        
+            model = ResNet(input_shape, num_res_block, trainCount, last_activation)
+
+        print("\n\n\n\Hyparameter: ", input_shape, trainCount, last_activation)
+        print("\n\n\n\n")
+
         # Define train and test datagenerator
         trainData = trainDatagen(
                                     width_shift,
@@ -442,27 +450,27 @@ class Window(QWidget):
         trainGenerator = trainData.generator(
                                     trainingPath,
                                     target_size = target_size,
-                                    batch_size = 16,
+                                    batch_size = 30,
                                     class_mode = class_mode
         )
         
         testGenerator = testData.generator(
                                     validPath,
                                     target_size = target_size,
-                                    batch_size = 16,
+                                    batch_size = 5,
                                     class_mode = class_mode
         )
 
         optimizer = tf.keras.optimizers.SGD(lr = 0.01, momentum = 0.9)
         model.compile(optimizer = optimizer, loss = loss, metrics = ['accuracy'])
         print(model.summary())
-        # history = model.fit_generator(
-        #                             trainGenerator,
-        #                             steps_per_epoch=100,
-        #                             epochs=30,
-        #                             validation_data=testGenerator,
-        #                             validation_steps=50
-        # )
+        history = model.fit_generator(
+                                    trainGenerator,
+                                    steps_per_epoch=3,
+                                    epochs=30,
+                                    validation_data=testGenerator,
+                                    validation_steps=2
+        )
 
         
     # When reset button clicked
