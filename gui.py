@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import *
 from datagen import *
 from model import *
 
-
+import threading
 ##test
 class Window(QWidget):
 
@@ -97,6 +97,20 @@ class Window(QWidget):
         # Create Augmentation Widget
         AugmentationLabel = QLabel("Augmentation:")
         # Define label_mode : 'binary' or 'categorical' --- batch_size: size of batches of data. default=32 --- image_size
+        WHEpoch = QHBoxLayout()
+        EpochLayout = QFormLayout()
+        self.EpochQLine = QLineEdit()
+        EpochLayout.addRow("Epochs: ", self.EpochQLine)
+
+        BatchSizeLayout = QFormLayout()
+        self.BatchSizeQLine = QLineEdit()
+        BatchSizeLayout.addRow("Batch Size: ", self.BatchSizeQLine)
+
+        WHEpoch.addLayout(EpochLayout)
+        WHEpoch.addLayout(BatchSizeLayout)
+        WHEpochWG = QWidget()
+        WHEpochWG.setLayout(WHEpoch)
+
             # Horizontal and Vertical Shift Augmentation
         WHShift = QHBoxLayout()
                 # Horizontal
@@ -209,6 +223,7 @@ class Window(QWidget):
 
         augmentation = QVBoxLayout()
         augmentation.addWidget(AugmentationLabel)
+        augmentation.addWidget(WHEpochWG)
         augmentation.addWidget(WHShiftWG)
         augmentation.addWidget(HVFlipWG)
         augmentation.addWidget(RRotationWG)
@@ -450,29 +465,44 @@ class Window(QWidget):
         trainGenerator = trainData.generator(
                                     trainingPath,
                                     target_size = target_size,
-                                    batch_size = 30,
+                                    batch_size = 32,
                                     class_mode = class_mode
         )
         
         testGenerator = testData.generator(
                                     validPath,
                                     target_size = target_size,
-                                    batch_size = 5,
+                                    batch_size = 32,
                                     class_mode = class_mode
         )
 
         optimizer = tf.keras.optimizers.SGD(lr = 0.01, momentum = 0.9)
         model.compile(optimizer = optimizer, loss = loss, metrics = ['accuracy'])
         print(model.summary())
-        history = model.fit_generator(
-                                    trainGenerator,
-                                    steps_per_epoch=3,
-                                    epochs=30,
-                                    validation_data=testGenerator,
-                                    validation_steps=2
-        )
-
         
+        steps_per_epoch = self.countImage(trainingPath) // int(self.BatchSizeQLine.text())
+        validation_step = self.countImage(validPath)//int(self.BatchSizeQLine.text())
+        epochs = int(self.EpochQLine.text())
+
+        trainingModel = threading.Thread(target=self.trainModel, args=(model, trainGenerator, steps_per_epoch, epochs, testGenerator, validation_step))
+        trainingModel.start()
+        
+    def trainModel(self, model, trainGenerator, steps_per_epoch, epochs, testGenerator, validation_step):
+        history = model.fit_generator(
+                            trainGenerator,
+                            steps_per_epoch=steps_per_epoch,
+                            epochs=epochs,
+                            validation_data=testGenerator,
+                            validation_steps=validation_step
+        )
+    def countImage(self, imgDir):
+        classDirs  = [className for className in os.listdir(imgDir)]
+        totalCount = 0
+        for classDir in classDirs:
+            count = len([img for img in os.listdir(os.path.join(imgDir, classDir)) if img.endswith(('jpg', 'png'))])
+        totalCount += count
+        return int(totalCount) 
+
     # When reset button clicked
     def _resetClicked(self):
         # DataSet Reset event
